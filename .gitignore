@@ -1,2 +1,5 @@
+#for mac
+*/.DS_store
+.DS_store
 
 /src/main/resources/application-*.yml
