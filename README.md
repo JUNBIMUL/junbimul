@@ -1,10 +1,10 @@
 ## GIT FLOW
 
-branches
+branch name
 
 - main
   - develop
-    - feat
+    - feat/기능(게시판 )
 
 
 
