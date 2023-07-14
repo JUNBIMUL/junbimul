@@ -1,42 +1,34 @@
 package com.junbimul.domain;
 
-import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-@DynamicInsert
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-@Entity
-@ToString
-public class Board {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "title", length = 30, nullable = false)
-    private String title;
-
-    @Column(name = "content", length = 255)
+    @Column(name = "content", length = 200)
     private String content;
 
     @Column(name = "created_at",
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            nullable = false,
             updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at",
-            nullable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
@@ -44,14 +36,11 @@ public class Board {
             updatable = false)
     private LocalDateTime deletedAt;
 
-    @Column(name = "view_cnt")
-    @ColumnDefault("0")
-    private Long viewCnt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    @OneToMany(mappedBy = "board")
-    private List<Comment> comments = new ArrayList<>();
 }
