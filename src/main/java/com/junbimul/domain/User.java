@@ -33,4 +33,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Board> boards = new ArrayList<>();
 
+    @Builder
+    public User(String nickname) {
+        this.nickname = nickname;
+    }
 }

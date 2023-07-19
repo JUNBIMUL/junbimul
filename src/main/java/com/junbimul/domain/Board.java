@@ -1,6 +1,7 @@
 package com.junbimul.domain;
 
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -31,12 +32,10 @@ public class Board {
 
     @Column(name = "created_at",
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            nullable = false,
             updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at",
-            nullable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
@@ -54,4 +53,11 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
+
+    @Builder
+    public Board(String title, String content,  User user) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+    }
 }
