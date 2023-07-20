@@ -1,32 +1,46 @@
 package com.junbimul.controller;
 
 import com.junbimul.domain.Board;
+import com.junbimul.dto.CombinedDto;
+import com.junbimul.dto.request.BoardRequestDto;
+import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.response.BoardResponseDto;
 import com.junbimul.service.BoardService;
+import com.junbimul.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;
+    private final UserService userService;
 
-    @RequestMapping("/board/create")
-    public Long createBoard(@RequestParam Board board) {
-        return boardService.registBoard(board);
+    @PostMapping("/board")
+    public ResponseEntity<?> writeBoard(@RequestBody CombinedDto combinedDto) {
+        BoardRequestDto boardDto = combinedDto.getBoardRequestDto();
+        UserRequestDto userDto = combinedDto.getUserRequestDto();
+        Board board = Board.builder()
+                .title(boardDto.getTitle())
+                .content(boardDto.getContent())
+                .user(userService.getUser(userDto.getId()))
+                .build();
+        boardService.registBoard(board);
+        return ResponseEntity.ok().build();
     }
 
-    @RequestMapping("/board")
-    public List<Board> selectAll() {
-        return boardService.findBoards();
+    @GetMapping("/board")
+    public ResponseEntity<List<BoardResponseDto>> list() {
+        List<BoardResponseDto> boards = boardService.findBoards();
+        return ResponseEntity.ok(boards);
     }
 
-    @RequestMapping("/board/{id}")
-    public Board selectOne(@RequestParam Long id) {
-        return boardService.findOne(id);
+    @GetMapping("/board/{id}")
+    public ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long id) {
+        return ResponseEntity.ok(boardService.getBoardById(id));
     }
 }

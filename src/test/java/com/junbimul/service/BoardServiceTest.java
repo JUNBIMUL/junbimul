@@ -29,7 +29,7 @@ class BoardServiceTest {
         //when
         Long id = boardService.registBoard(board);
         //then
-        Board findBoard = boardService.findOne(id);
+        Board findBoard = boardService.getBoardById(id);
         Assertions.assertThat(id).isEqualTo(findBoard.getId());
 
     }
