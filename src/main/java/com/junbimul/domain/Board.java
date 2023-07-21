@@ -39,8 +39,7 @@ public class Board {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at",
-            updatable = false)
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Column(name = "view_cnt")
