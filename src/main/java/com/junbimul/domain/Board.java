@@ -1,7 +1,6 @@
 package com.junbimul.domain;
 
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -10,13 +9,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-@Entity
-@ToString
 public class Board {
 
     @Id
@@ -54,7 +52,7 @@ public class Board {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Board(String title, String content,  User user) {
+    public Board(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.user = user;

@@ -1,23 +1,21 @@
 package com.junbimul.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
+@DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-@ToString
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -29,7 +27,6 @@ public class User {
             insertable = false,
             updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
     // 필요한가?
