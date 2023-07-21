@@ -1,8 +1,9 @@
 package com.junbimul.dto.request;
 
-import com.junbimul.domain.Comment;
-import com.junbimul.domain.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
