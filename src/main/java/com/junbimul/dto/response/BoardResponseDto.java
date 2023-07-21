@@ -19,6 +19,6 @@ public class BoardResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
-    private UserResponseDto userResponseDto;
+    private String nickname;
 
 }

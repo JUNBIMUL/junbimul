@@ -13,6 +13,4 @@ public class BoardRequestDto {
     private String title;
     private String content;
     private Long viewCnt;
-    private User user;
-
 }
