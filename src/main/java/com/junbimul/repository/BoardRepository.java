@@ -21,7 +21,7 @@ public class BoardRepository {
     }
 
     // 전체 가져오기 -> 추후 페이지네이션
-    public List<Board> findAll(){
+    public List<Board> findAll() {
         return em.createQuery("select b from Board b", Board.class).getResultList();
     }
 
