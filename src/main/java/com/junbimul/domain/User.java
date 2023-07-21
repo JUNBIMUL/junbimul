@@ -1,23 +1,21 @@
 package com.junbimul.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
+@DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -25,12 +23,18 @@ public class User {
     private String nickname;
 
     @Column(name = "created_at",
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            updatable = false)
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
+    // 필요한가?
+//    @OneToMany(mappedBy = "user")
+//    private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<Board> boards = new ArrayList<>();
-
+    @Builder
+    public User(String nickname) {
+        this.nickname = nickname;
+    }
 }

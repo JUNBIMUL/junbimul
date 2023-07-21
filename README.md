@@ -33,7 +33,7 @@ git commit
 
 ### [PART] FUNCTION
 
-PART : USER(회원), BOARD(게시판), DIST(배포)
+PART : USER(회원), BOARD(게시판), DIST(배포), FIX(버그 수정)
 
 FUNCTION : {게시글, 유저, 배포} {생성, 조회, 수정, 삭제} 기능 {구현, 수정, 에러해결}
 

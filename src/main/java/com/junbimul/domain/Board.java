@@ -9,13 +9,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-@Entity
-@ToString
 public class Board {
 
     @Id
@@ -31,17 +30,14 @@ public class Board {
 
     @Column(name = "created_at",
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            nullable = false,
             updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at",
-            nullable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at",
-            updatable = false)
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Column(name = "view_cnt")
@@ -54,4 +50,11 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
+
+    @Builder
+    public Board(String title, String content, User user) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+    }
 }
