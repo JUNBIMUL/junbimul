@@ -35,10 +35,7 @@ public class BoardService {
                         .viewCnt(board.getViewCnt())
                         .createdAt(board.getCreatedAt())
                         .updatedAt(board.getUpdatedAt())
-                        .userResponseDto(
-                                UserResponseDto.builder()
-                                        .nickname(board.getUser().getNickname())
-                                        .build())
+                        .nickname(board.getUser().getNickname())
                         .build())
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -53,10 +50,7 @@ public class BoardService {
                 .viewCnt(findBoard.getViewCnt())
                 .createdAt(findBoard.getCreatedAt())
                 .updatedAt(findBoard.getUpdatedAt())
-                .userResponseDto(
-                        UserResponseDto.builder()
-                                .nickname(findBoard.getUser().getNickname())
-                                .build())
+                .nickname(findBoard.getUser().getNickname())
                 .build();
     }
 
