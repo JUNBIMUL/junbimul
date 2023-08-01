@@ -1,10 +1,12 @@
 package com.junbimul.service;
 
 import com.junbimul.domain.Board;
-import com.junbimul.domain.User;
+import com.junbimul.domain.Comment;
+import com.junbimul.dto.response.BoardDetailResponseDto;
 import com.junbimul.dto.response.BoardResponseDto;
-import com.junbimul.dto.response.UserResponseDto;
+import com.junbimul.dto.response.CommentResponseDto;
 import com.junbimul.repository.BoardRepository;
+import com.junbimul.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     // 게시글 등록
     public Long registBoard(Board board) {
@@ -41,16 +44,28 @@ public class BoardService {
     }
 
     // 게시글 하나 가져오기
-    public BoardResponseDto getBoardById(Long id) {
+    public BoardDetailResponseDto getBoardDetailById(Long id) {
         Board findBoard = boardRepository.findOne(id);
+        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id);
+        System.out.println("aaaaaa");
+        for (Comment comment : commentsByBoardId) {
+            System.out.println(comment.getId());
+        }
 
-        return BoardResponseDto.builder()
+        return BoardDetailResponseDto.builder()
                 .title(findBoard.getTitle())
                 .content(findBoard.getContent())
                 .viewCnt(findBoard.getViewCnt())
                 .createdAt(findBoard.getCreatedAt())
                 .updatedAt(findBoard.getUpdatedAt())
                 .nickname(findBoard.getUser().getNickname())
+                .commentList(commentsByBoardId.stream()
+                        .map(comment -> CommentResponseDto.builder()
+                                .id(comment.getId())
+                                .userName(comment.getUser().getNickname())
+                                .updatedAt(comment.getUpdatedAt())
+                                .content(comment.getContent())
+                                .build()).collect(Collectors.toUnmodifiableList()))
                 .build();
     }
 
