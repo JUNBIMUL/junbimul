@@ -1,10 +1,12 @@
 package com.junbimul.service;
 
 import com.junbimul.domain.Board;
-import com.junbimul.domain.User;
+import com.junbimul.domain.Comment;
+import com.junbimul.dto.response.BoardDetailResponseDto;
 import com.junbimul.dto.response.BoardResponseDto;
-import com.junbimul.dto.response.UserResponseDto;
+import com.junbimul.dto.response.CommentResponseDto;
 import com.junbimul.repository.BoardRepository;
+import com.junbimul.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     // 게시글 등록
     public Long registBoard(Board board) {
@@ -28,6 +31,7 @@ public class BoardService {
     public List<BoardResponseDto> findBoards() {
         return boardRepository.findAll()
                 .stream()
+                .filter(board -> board.getDeletedAt() == null)
                 .map(board -> BoardResponseDto.builder()
                         .id(board.getId())
                         .title(board.getTitle())
@@ -41,16 +45,26 @@ public class BoardService {
     }
 
     // 게시글 하나 가져오기
-    public BoardResponseDto getBoardById(Long id) {
+    public BoardDetailResponseDto getBoardDetailById(Long id) {
+        // 요청이 들어올 때 삭제된 건지, 아닌지 판단해야할듯
         Board findBoard = boardRepository.findOne(id);
-
-        return BoardResponseDto.builder()
+        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id).stream().filter(c -> c.getDeletedAt() == null).collect(Collectors.toUnmodifiableList());;
+        return BoardDetailResponseDto.builder()
+                .id(findBoard.getId())
                 .title(findBoard.getTitle())
                 .content(findBoard.getContent())
                 .viewCnt(findBoard.getViewCnt())
                 .createdAt(findBoard.getCreatedAt())
                 .updatedAt(findBoard.getUpdatedAt())
                 .nickname(findBoard.getUser().getNickname())
+                .commentList(commentsByBoardId.stream()
+                        .map(comment -> CommentResponseDto.builder()
+                                .commentId(comment.getId())
+                                .userName(comment.getUser().getNickname())
+                                .updatedAt(comment.getUpdatedAt())
+                                .content(comment.getContent())
+                                .build())
+                        .collect(Collectors.toUnmodifiableList()))
                 .build();
     }
 

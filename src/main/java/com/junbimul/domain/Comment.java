@@ -44,4 +44,14 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void modifyContent(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deleteComment() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.junbimul.domain.Board;
 import com.junbimul.dto.CombinedDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.response.BoardDetailResponseDto;
 import com.junbimul.dto.response.BoardResponseDto;
 import com.junbimul.service.BoardService;
 import com.junbimul.service.UserService;
@@ -39,7 +40,7 @@ public class BoardController {
     }
 
     @GetMapping("/board/{id}")
-    public ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long id) {
-        return ResponseEntity.ok(boardService.getBoardById(id));
+    public ResponseEntity<BoardDetailResponseDto> getBoard(@PathVariable Long id) {
+        return ResponseEntity.ok(boardService.getBoardDetailById(id));
     }
 }
