@@ -9,3 +9,4 @@ public class CombinedDto {
     BoardRequestDto boardRequestDto;
     UserRequestDto userRequestDto;
 }
+

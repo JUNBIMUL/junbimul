@@ -28,7 +28,7 @@ public class BoardController {
         Board board = Board.builder()
                 .title(boardDto.getTitle())
                 .content(boardDto.getContent())
-                .user(userService.getUser(userDto.getId())).build();
+                .user(userService.getUser(userDto.getUserId())).build();
         boardService.registerBoard(board);
         return ResponseEntity.ok().build();
     }

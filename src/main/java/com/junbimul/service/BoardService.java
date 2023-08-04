@@ -85,6 +85,9 @@ public class BoardService {
         Long boardId = boardRequestDto.getBoardId();
         Board findBoard = boardRepository.findOne(boardId);
         findBoard.delete(LocalDateTime.now());
+        for (Comment comment : findBoard.getComments()) {
+            comment.deleteComment();
+        }
         return boardId;
     }
 }
