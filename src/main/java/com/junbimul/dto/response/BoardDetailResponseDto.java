@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @ToString
 public class BoardDetailResponseDto {
-    private Long id;
+    private Long boardId;
     private String title;
     private String content;
     private Long viewCnt;
