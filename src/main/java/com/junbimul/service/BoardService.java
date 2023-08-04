@@ -31,6 +31,7 @@ public class BoardService {
     public List<BoardResponseDto> findBoards() {
         return boardRepository.findAll()
                 .stream()
+                .filter(board -> board.getDeletedAt() == null)
                 .map(board -> BoardResponseDto.builder()
                         .id(board.getId())
                         .title(board.getTitle())
@@ -45,14 +46,11 @@ public class BoardService {
 
     // 게시글 하나 가져오기
     public BoardDetailResponseDto getBoardDetailById(Long id) {
+        // 요청이 들어올 때 삭제된 건지, 아닌지 판단해야할듯
         Board findBoard = boardRepository.findOne(id);
-        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id);
-        System.out.println("aaaaaa");
-        for (Comment comment : commentsByBoardId) {
-            System.out.println(comment.getId());
-        }
-
+        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id).stream().filter(c -> c.getDeletedAt() == null).collect(Collectors.toUnmodifiableList());;
         return BoardDetailResponseDto.builder()
+                .id(findBoard.getId())
                 .title(findBoard.getTitle())
                 .content(findBoard.getContent())
                 .viewCnt(findBoard.getViewCnt())
@@ -61,11 +59,12 @@ public class BoardService {
                 .nickname(findBoard.getUser().getNickname())
                 .commentList(commentsByBoardId.stream()
                         .map(comment -> CommentResponseDto.builder()
-                                .id(comment.getId())
+                                .commentId(comment.getId())
                                 .userName(comment.getUser().getNickname())
                                 .updatedAt(comment.getUpdatedAt())
                                 .content(comment.getContent())
-                                .build()).collect(Collectors.toUnmodifiableList()))
+                                .build())
+                        .collect(Collectors.toUnmodifiableList()))
                 .build();
     }
 

@@ -29,4 +29,8 @@ public class CommentRepository {
                 .setParameter("boardId", boardId)
                 .getResultList();
     }
+
+    public Comment findById(Long commentId) {
+        return em.find(Comment.class, commentId);
+    }
 }
