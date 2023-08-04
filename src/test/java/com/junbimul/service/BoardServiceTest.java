@@ -2,7 +2,7 @@ package com.junbimul.service;
 
 import com.junbimul.domain.Board;
 import com.junbimul.domain.User;
-import com.junbimul.dto.response.BoardResponseDto;
+import com.junbimul.dto.response.BoardDetailResponseDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -28,10 +26,10 @@ class BoardServiceTest {
         //given
         Board board = createBoard("게시글 1", "유저 1");
         //when
-        Long id = boardService.registBoard(board);
+        Long id = boardService.registerBoard(board);
         //then
-        BoardResponseDto findBoard = boardService.getBoardById(id);
-        Assertions.assertThat(id).isEqualTo(findBoard.getId());
+        BoardDetailResponseDto findBoard = boardService.getBoardDetailById(id);
+        Assertions.assertThat(id).isEqualTo(findBoard.getBoardId());
 
     }
 
@@ -43,9 +41,9 @@ class BoardServiceTest {
         Board board2 = createBoard("게시글 2", "유저 2");
         Board board3 = createBoard("게시글 3", "유저 3");
         //when
-        boardService.registBoard(board);
-        boardService.registBoard(board2);
-        boardService.registBoard(board3);
+        boardService.registerBoard(board);
+        boardService.registerBoard(board2);
+        boardService.registerBoard(board3);
         //then
         Assertions.assertThat(boardService.findBoards().size()).isEqualTo(3);
     }

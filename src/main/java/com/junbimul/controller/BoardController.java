@@ -29,7 +29,7 @@ public class BoardController {
                 .title(boardDto.getTitle())
                 .content(boardDto.getContent())
                 .user(userService.getUser(userDto.getId())).build();
-        boardService.registBoard(board);
+        boardService.registerBoard(board);
         return ResponseEntity.ok().build();
     }
 
@@ -42,5 +42,15 @@ public class BoardController {
     @GetMapping("/board/{id}")
     public ResponseEntity<BoardDetailResponseDto> getBoard(@PathVariable Long id) {
         return ResponseEntity.ok(boardService.getBoardDetailById(id));
+    }
+
+    @PutMapping("/board")
+    public ResponseEntity<Long> modifyBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(boardService.modifyBoard(boardRequestDto));
+    }
+
+    @DeleteMapping("/board")
+    public ResponseEntity<Long> deleteBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(boardService.deleteBoard(boardRequestDto));
     }
 }
