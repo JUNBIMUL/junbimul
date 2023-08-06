@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class CommentModifyDto {
+public class CommentModifyResponseDto {
     private Long commentId;
 }

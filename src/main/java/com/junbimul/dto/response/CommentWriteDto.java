@@ -1,2 +1,14 @@
-package com.junbimul.dto.response;public class CommentWriteDto {
+package com.junbimul.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Builder
+public class CommentWriteDto {
+    private Long commentId;
 }

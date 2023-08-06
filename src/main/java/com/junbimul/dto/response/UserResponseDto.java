@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class UserResponseDto {
+    private Long userId;
     private String nickname;
 }

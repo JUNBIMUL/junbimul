@@ -1,8 +1,7 @@
 package com.junbimul.service;
 
 import com.junbimul.domain.User;
-import com.junbimul.dto.request.UserRequestDto;
-import com.junbimul.dto.response.UserResponseDto;
+import com.junbimul.dto.request.UserSignupRequestDto;
 import com.junbimul.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,14 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public void join(UserRequestDto user) {
-        if (userRepository.findByName(user.getNickname()).size() == 0) {
-            userRepository.save(
-                    User.builder().nickname(user.getNickname())
+    public Long join(UserSignupRequestDto userRequestDto) {
+        if (userRepository.findByName(userRequestDto.getNickname()).size() == 0) {
+            Long userId = userRepository.save(
+                    User.builder()
+                            .nickname(userRequestDto.getNickname())
                             .build());
         } else {
             throw new IllegalStateException("이미 ID 존재함");
         }
+        return userRequestDto.getUserId();
     }
 
     public User getUser(Long id) {
