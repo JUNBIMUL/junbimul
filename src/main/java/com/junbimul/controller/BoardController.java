@@ -3,8 +3,10 @@ package com.junbimul.controller;
 import com.junbimul.domain.Board;
 import com.junbimul.dto.CombinedDto;
 import com.junbimul.dto.request.BoardRequestDto;
-import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.request.UserSignupRequestDto;
+import com.junbimul.dto.response.BoardDeleteResponseDto;
 import com.junbimul.dto.response.BoardDetailResponseDto;
+import com.junbimul.dto.response.BoardModifyResponseDto;
 import com.junbimul.dto.response.BoardResponseDto;
 import com.junbimul.service.BoardService;
 import com.junbimul.service.UserService;
@@ -24,10 +26,11 @@ public class BoardController {
     @PostMapping("/board")
     public ResponseEntity<?> writeBoard(@RequestBody CombinedDto combinedDto) {
         BoardRequestDto boardDto = combinedDto.getBoardRequestDto();
-        UserRequestDto userDto = combinedDto.getUserRequestDto();
+        UserSignupRequestDto userDto = combinedDto.getUserRequestDto();
         Board board = Board.builder()
                 .title(boardDto.getTitle())
                 .content(boardDto.getContent())
+                .viewCnt(0L)
                 .user(userService.getUser(userDto.getUserId())).build();
         boardService.registerBoard(board);
         return ResponseEntity.ok().build();
@@ -45,12 +48,16 @@ public class BoardController {
     }
 
     @PutMapping("/board")
-    public ResponseEntity<Long> modifyBoard(@RequestBody BoardRequestDto boardRequestDto) {
-        return ResponseEntity.ok(boardService.modifyBoard(boardRequestDto));
+    public ResponseEntity<BoardModifyResponseDto> modifyBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(BoardModifyResponseDto.builder()
+                .boardId(boardService.modifyBoard(boardRequestDto))
+                .build());
     }
 
     @DeleteMapping("/board")
-    public ResponseEntity<Long> deleteBoard(@RequestBody BoardRequestDto boardRequestDto) {
-        return ResponseEntity.ok(boardService.deleteBoard(boardRequestDto));
+    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(BoardDeleteResponseDto.builder()
+                .boardId(boardService.deleteBoard(boardRequestDto))
+                .build());
     }
 }
