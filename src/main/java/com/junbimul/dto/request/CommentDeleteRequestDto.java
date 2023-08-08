@@ -1,5 +1,4 @@
-package com.junbimul.dto.response;
-
+package com.junbimul.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserResponseDto {
-    private Long userId;
-    private String nickname;
+public class CommentDeleteRequestDto {
+    private long commentId;
 }

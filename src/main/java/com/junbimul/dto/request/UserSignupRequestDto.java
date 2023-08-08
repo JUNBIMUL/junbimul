@@ -7,6 +7,5 @@ import lombok.*;
 @Getter
 @Builder
 public class UserSignupRequestDto {
-    private Long userId;
     private String nickname;
 }

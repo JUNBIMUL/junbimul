@@ -1,7 +1,7 @@
 package com.junbimul.controller;
 
 import com.junbimul.dto.request.UserSignupRequestDto;
-import com.junbimul.dto.response.UserResponseDto;
+import com.junbimul.dto.response.UserSignupResponseDto;
 import com.junbimul.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,18 +18,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/user")
-    public ResponseEntity signup(@RequestBody UserSignupRequestDto userDto) {
-        UserSignupRequestDto user = UserSignupRequestDto.builder()
-                .nickname(userDto.getNickname())
-                .build();
-        Long userId = userService.join(user);
-
-
-        // 여기서 토큰 관련 처리
-        return ResponseEntity.ok(UserResponseDto.builder()
-                .nickname(userDto.getNickname())
-                .userId(userId)
-                .build());
+    public ResponseEntity<UserSignupResponseDto> signup(@RequestBody UserSignupRequestDto userDto) {
+        return ResponseEntity.ok(userService.join(userDto));
     }
 
 }
