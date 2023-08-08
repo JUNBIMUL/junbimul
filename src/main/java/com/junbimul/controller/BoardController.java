@@ -25,7 +25,7 @@ public class BoardController {
     }
 
     @GetMapping("/board")
-    public ResponseEntity<BoardListResponseDto> list() {
+    public ResponseEntity<BoardListResponseDto> getBoardList() {
         return ResponseEntity.ok(boardService.findBoards());
     }
 
