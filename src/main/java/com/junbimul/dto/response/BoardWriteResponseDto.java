@@ -1,4 +1,4 @@
-package com.junbimul.dto.request;
+package com.junbimul.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserRequestDto {
-    private Long userId;
-    private String nickname;
+public class BoardWriteResponseDto {
+    private Long boardId;
 }

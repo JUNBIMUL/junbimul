@@ -57,4 +57,17 @@ public class Board {
         this.content = content;
         this.user = user;
     }
+
+    public void updateViewCount(){
+        this.viewCnt = this.viewCnt + 1;
+    }
+    public void modify(String title, String content, LocalDateTime updatedAt) {
+        this.title = title;
+        this.content = content;
+        this.updatedAt = updatedAt;
+    }
+    public void delete( LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+
+    }
 }

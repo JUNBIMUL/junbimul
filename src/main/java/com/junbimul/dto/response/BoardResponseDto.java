@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class BoardResponseDto {
-    private Long id;
+    private Long boardId;
     private String title;
     private String content;
     private Long viewCnt;

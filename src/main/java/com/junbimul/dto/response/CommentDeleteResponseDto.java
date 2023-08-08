@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserResponseDto {
-    private String nickname;
+public class CommentDeleteResponseDto {
+    private Long commentId;
 }

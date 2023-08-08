@@ -22,8 +22,8 @@ public class CommentRepository {
         return em.createQuery(
                         "SELECT c FROM Comment c " +
                                 "JOIN FETCH c.board b " +
-                                "JOIN FETCH c.user u " +
-                                "JOIN FETCH b.user u " +
+                                "JOIN FETCH c.user comment_user " +
+                                "JOIN FETCH b.user board_user " +
                                 "WHERE b.id = :boardId",
                         Comment.class)
                 .setParameter("boardId", boardId)
