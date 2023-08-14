@@ -4,6 +4,8 @@
 
 #.gitignore in git(spring boot at main)
 *#
+*.bin
+*.lock
 *.iml
 *.ipr
 *.iws
