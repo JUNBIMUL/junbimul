@@ -5,6 +5,8 @@ import com.junbimul.domain.Comment;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
+import com.junbimul.exception.ErrorCode;
+import com.junbimul.exception.board.BoardIdNotFoundException;
 import com.junbimul.repository.BoardRepository;
 import com.junbimul.repository.CommentRepository;
 import com.junbimul.repository.UserRepository;
@@ -62,6 +64,9 @@ public class BoardService {
     public BoardDetailResponseDto getBoardDetailById(Long id) {
         // 요청이 들어올 때 삭제된 건지, 아닌지 판단해야할듯
         Board findBoard = boardRepository.findOne(id);
+        if (findBoard == null) {
+            throw new BoardIdNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
         // 이제 여기서 문제가 생김, 예외 처리 해야하는 부분
         findBoard.updateViewCount();
         List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id).stream().filter(c -> c.getDeletedAt() == null).collect(Collectors.toUnmodifiableList());;
@@ -84,9 +89,12 @@ public class BoardService {
                 .build();
     }
 
-    public BoardModifyResponseDto modifyBoard(BoardRequestDto boardRequestDto) {
+    public BoardModifyResponseDto modifyBoard(BoardRequestDto boardRequestDto){
         Long boardId = boardRequestDto.getBoardId();
         Board findBoard = boardRepository.findOne(boardId);
+        if (findBoard == null) {
+            throw new BoardIdNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
         String modifiedTitle = boardRequestDto.getTitle();
         String modifiedContent = boardRequestDto.getContent();
         findBoard.modify(modifiedTitle, modifiedContent, LocalDateTime.now());
@@ -99,6 +107,9 @@ public class BoardService {
     public BoardDeleteResponseDto deleteBoard(BoardRequestDto boardRequestDto) {
         Long boardId = boardRequestDto.getBoardId();
         Board findBoard = boardRepository.findOne(boardId);
+        if (findBoard == null) {
+            throw new BoardIdNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
         findBoard.delete(LocalDateTime.now());
         for (Comment comment : findBoard.getComments()) {
             comment.deleteComment();

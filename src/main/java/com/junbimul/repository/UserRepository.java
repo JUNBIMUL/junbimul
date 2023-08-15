@@ -18,8 +18,8 @@ public class UserRepository {
         return em.find(User.class, user.getId()).getId();
     }
 
-    public List findByName(String nickname) {
-        return em.createQuery("select u from User u where u.nickname = :nickname")
+    public List<User> findByNickname(String nickname) {
+        return em.createQuery("select u from User u where u.nickname = :nickname", User.class)
                 .setParameter("nickname", nickname)
                 .getResultList();
 
@@ -27,6 +27,10 @@ public class UserRepository {
 
     public User findById(Long id) {
         return em.find(User.class, id);
+    }
+
+    public List<User> findUsers(){
+        return em.createQuery("select u from User u", User.class).getResultList();
     }
 
 }
