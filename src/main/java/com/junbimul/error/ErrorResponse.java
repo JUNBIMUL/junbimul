@@ -1,5 +1,6 @@
-package com.junbimul.exception;
+package com.junbimul.error;
 
+import com.junbimul.error.model.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

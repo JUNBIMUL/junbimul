@@ -6,7 +6,7 @@ import com.junbimul.dto.request.CommentRequestDto;
 import com.junbimul.dto.response.CommentDeleteResponseDto;
 import com.junbimul.dto.response.CommentModifyResponseDto;
 import com.junbimul.dto.response.CommentWriteResponseDto;
-import com.junbimul.service.CommentService;
+import com.junbimul.service.CommentServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "댓글")
 @RequiredArgsConstructor
 public class CommentController {
-    private final CommentService commentService;
+    private final CommentServiceImpl commentService;
 
     @PostMapping("/comment")
     @Operation(summary = "댓글 작성")

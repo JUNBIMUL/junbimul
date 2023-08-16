@@ -14,7 +14,7 @@ import javax.persistence.EntityManager;
 class BoardServiceTest {
 
     @Autowired
-    BoardService boardService;
+    BoardServiceImpl boardService;
 
     @Autowired
     EntityManager em;
