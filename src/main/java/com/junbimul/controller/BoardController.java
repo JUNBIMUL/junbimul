@@ -1,6 +1,7 @@
 package com.junbimul.controller;
 
 import com.junbimul.dto.CombinedDto;
+import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
@@ -51,7 +52,7 @@ public class BoardController {
 
     @DeleteMapping("/board")
     @Operation(summary = "게시글 삭제")
-    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardRequestDto boardRequestDto) {
-        return ResponseEntity.ok(boardService.deleteBoard(boardRequestDto));
+    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardDeleteRequestDto boardDeleteRequestDto) {
+        return ResponseEntity.ok(boardService.deleteBoard(boardDeleteRequestDto));
     }
 }

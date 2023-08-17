@@ -52,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto) {
         Comment findComment = commentRepository.findById(commentModifyRequestDto.getCommentId());
         commentNullCheck(findComment);
-        User findUser = userRepository.findById(commentModifyRequestDto.getCommentId());
+        User findUser = userRepository.findById(commentModifyRequestDto.getUserId());
         userNullCheck(findUser);
         commentUserIdCheck(findComment, findUser);
         commentContentLengthCheck(commentModifyRequestDto.getContent());

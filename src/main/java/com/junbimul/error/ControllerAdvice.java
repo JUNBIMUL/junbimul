@@ -27,7 +27,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(CommentApiException.class)
-    public ResponseEntity<ErrorResponse> commentApiException(UserApiException e) {
+    public ResponseEntity<ErrorResponse> commentApiException(CommentApiException e) {
         log.error("CommentApiException", e);
         ErrorResponse response = new ErrorResponse(e.getErrorCode());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(new ErrorResponse(e.getErrorCode()));
