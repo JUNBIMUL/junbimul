@@ -38,7 +38,6 @@ public class BoardController {
     @Operation(summary = "게시글 상세 조회")
     public ResponseEntity<BoardDetailResponseDto> getBoard(@PathVariable Long id) {
         BoardDetailResponseDto boardDetailById = boardService.getBoardDetailById(id);
-        System.out.println("boardDetailById = " + boardDetailById);
         return ResponseEntity.ok(boardDetailById);
     }
 

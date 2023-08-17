@@ -43,10 +43,16 @@ public class BoardServiceImpl implements BoardService {
 
     private static void checkTitleContentLength(BoardRequestDto boardRequestDto) {
         if (boardRequestDto.getTitle().length() > 30) {
-            throw new BoardApiException(BoardErrorCode.TITLE_LENGTH_OVER);
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
+        }
+        if (boardRequestDto.getTitle().length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
         }
         if (boardRequestDto.getContent().length() > 200) {
-            throw new BoardApiException(BoardErrorCode.TITLE_LENGTH_OVER);
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
+        }
+        if (boardRequestDto.getContent().length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
         }
     }
 
@@ -77,6 +83,9 @@ public class BoardServiceImpl implements BoardService {
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
         }
+        if (findBoard.getDeletedAt() != null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
+        }
         // 이제 여기서 문제가 생김, 예외 처리 해야하는 부분
         findBoard.updateViewCount();
         List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id).stream().filter(c -> c.getDeletedAt() == null).collect(Collectors.toUnmodifiableList());;
@@ -100,11 +109,16 @@ public class BoardServiceImpl implements BoardService {
     }
 
     public BoardModifyResponseDto modifyBoard(BoardRequestDto boardRequestDto){
+        // 수정은, user 찾는 로직, 찾아서 해당 글과 맞는지,체크
+        // 유저 개수 0 이면
         checkTitleContentLength(boardRequestDto);
         Long boardId = boardRequestDto.getBoardId();
         Board findBoard = boardRepository.findOne(boardId);
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
+        }
+        if (findBoard.getDeletedAt() != null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
         String modifiedTitle = boardRequestDto.getTitle();
         String modifiedContent = boardRequestDto.getContent();
@@ -120,6 +134,9 @@ public class BoardServiceImpl implements BoardService {
         Board findBoard = boardRepository.findOne(boardId);
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
+        }
+        if (findBoard.getDeletedAt() != null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
         findBoard.delete(LocalDateTime.now());
         for (Comment comment : findBoard.getComments()) {
