@@ -3,6 +3,7 @@ package com.junbimul.controller;
 import com.junbimul.dto.request.UserSignupRequestDto;
 import com.junbimul.dto.response.UserResponseDto;
 import com.junbimul.dto.response.UserSignupResponseDto;
+import com.junbimul.service.UserService;
 import com.junbimul.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @PostMapping("/user")
     @Operation(summary = "회원 가입")

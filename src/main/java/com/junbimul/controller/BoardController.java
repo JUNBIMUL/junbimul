@@ -4,7 +4,7 @@ import com.junbimul.dto.CombinedDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
-import com.junbimul.service.BoardServiceImpl;
+import com.junbimul.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardController {
 
-    private final BoardServiceImpl boardService;
+    private final BoardService boardService;
 
     @PostMapping("/board")
     @Operation(summary = "게시글 등록")
