@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class CommentModifyRequestDto {
-    private long commentId;
+    private Long commentId;
+    private Long userId;
     private String content;
 }

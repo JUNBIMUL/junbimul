@@ -2,11 +2,15 @@ package com.junbimul.service;
 
 import com.junbimul.domain.Board;
 import com.junbimul.domain.Comment;
+import com.junbimul.domain.User;
+import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
 import com.junbimul.error.exception.BoardApiException;
+import com.junbimul.error.exception.UserApiException;
 import com.junbimul.error.model.BoardErrorCode;
+import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.BoardRepository;
 import com.junbimul.repository.CommentRepository;
 import com.junbimul.repository.UserRepository;
@@ -30,11 +34,16 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 등록
     public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
         checkTitleContentLength(boardRequestDto);
+        User findUser = userRepository.findById(userDto.getUserId());
+        if (findUser == null) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+        }
+
         Board board = Board.builder()
                 .title(boardRequestDto.getTitle())
                 .content(boardRequestDto.getContent())
                 .viewCnt(0L)
-                .user(userRepository.findById(userDto.getUserId())).build();
+                .user(findUser).build();
         Long boardId = boardRepository.save(board);
         return BoardWriteResponseDto.builder()
                 .boardId(boardId)
@@ -56,39 +65,19 @@ public class BoardServiceImpl implements BoardService {
         }
     }
 
-    // 게시글 전체 가져오기
-    public BoardListResponseDto findBoards() {
-        List<BoardResponseDto> boardList = boardRepository.findAll()
-                .stream()
-                .filter(board -> board.getDeletedAt() == null)
-                .map(board -> BoardResponseDto.builder()
-                        .boardId(board.getId())
-                        .title(board.getTitle())
-                        .content(board.getContent())
-                        .viewCnt(board.getViewCnt())
-                        .createdAt(board.getCreatedAt())
-                        .updatedAt(board.getUpdatedAt())
-                        .nickname(board.getUser().getNickname())
-                        .build())
-                .collect(Collectors.toUnmodifiableList());
-        return BoardListResponseDto.builder()
-                .boardList(boardList)
-                .build();
-    }
-
-    // 게시글 하나 가져오기
     public BoardDetailResponseDto getBoardDetailById(Long id) {
-        // 요청이 들어올 때 삭제된 건지, 아닌지 판단해야할듯
-        Board findBoard = boardRepository.findOne(id);
+        Board findBoard = boardRepository.findById(id);
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
         }
         if (findBoard.getDeletedAt() != null) {
             throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
-        // 이제 여기서 문제가 생김, 예외 처리 해야하는 부분
         findBoard.updateViewCount();
-        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id).stream().filter(c -> c.getDeletedAt() == null).collect(Collectors.toUnmodifiableList());;
+        List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id)
+                .stream()
+                .filter(c -> c.getDeletedAt() == null)
+                .collect(Collectors.toUnmodifiableList());
         return BoardDetailResponseDto.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
@@ -101,6 +90,7 @@ public class BoardServiceImpl implements BoardService {
                         .map(comment -> CommentResponseDto.builder()
                                 .commentId(comment.getId())
                                 .userName(comment.getUser().getNickname())
+                                .createdAt(comment.getCreatedAt())
                                 .updatedAt(comment.getUpdatedAt())
                                 .content(comment.getContent())
                                 .build())
@@ -108,43 +98,86 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
-    public BoardModifyResponseDto modifyBoard(BoardRequestDto boardRequestDto){
-        // 수정은, user 찾는 로직, 찾아서 해당 글과 맞는지,체크
-        // 유저 개수 0 이면
-        checkTitleContentLength(boardRequestDto);
-        Long boardId = boardRequestDto.getBoardId();
-        Board findBoard = boardRepository.findOne(boardId);
+    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto) {
+
+        Board findBoard = boardRepository.findById(boardModifyRequestDto.getBoardId());
+        User findUser = userRepository.findById(boardModifyRequestDto.getUserId());
+        if (findUser == null) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+        }
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
         }
         if (findBoard.getDeletedAt() != null) {
             throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
-        String modifiedTitle = boardRequestDto.getTitle();
-        String modifiedContent = boardRequestDto.getContent();
+
+        if (findBoard.getUser().getId() != findUser.getId()) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
+        }
+        if (boardModifyRequestDto.getTitle().length() > 30) {
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
+        }
+        if (boardModifyRequestDto.getTitle().length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
+        }
+        if (boardModifyRequestDto.getContent().length() > 200) {
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
+        }
+        if (boardModifyRequestDto.getContent().length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
+        }
+
+        String modifiedTitle = boardModifyRequestDto.getTitle();
+        String modifiedContent = boardModifyRequestDto.getContent();
         findBoard.modify(modifiedTitle, modifiedContent, LocalDateTime.now());
 
         return BoardModifyResponseDto.builder()
-                .boardId(boardId)
+                .boardId(findBoard.getId())
                 .build();
     }
 
     public BoardDeleteResponseDto deleteBoard(BoardRequestDto boardRequestDto) {
-        Long boardId = boardRequestDto.getBoardId();
-        Board findBoard = boardRepository.findOne(boardId);
+        Board findBoard = boardRepository.findById(boardRequestDto.getBoardId());
+        User findUser = userRepository.findById(boardRequestDto.getUserId());
+        if (findUser == null) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+        }
         if (findBoard == null) {
             throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
         }
         if (findBoard.getDeletedAt() != null) {
             throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
+        if (findBoard.getUser().getId() != findUser.getId()) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
+        }
         findBoard.delete(LocalDateTime.now());
         for (Comment comment : findBoard.getComments()) {
+            if(comment.getDeletedAt() != null) continue;
             comment.deleteComment();
         }
 
         return BoardDeleteResponseDto.builder()
-                .boardId(boardId)
+                .boardId(findBoard.getId())
+                .build();
+    }
+
+    public BoardListResponseDto findBoards() {
+        List<BoardResponseDto> boardList = boardRepository.findAll()
+                .stream()
+                .filter(board -> board.getDeletedAt() == null)
+                .map(board -> BoardResponseDto.builder()
+                        .boardId(board.getId())
+                        .title(board.getTitle())
+                        .viewCnt(board.getViewCnt())
+                        .createdAt(board.getCreatedAt())
+                        .updatedAt(board.getUpdatedAt())
+                        .nickname(board.getUser().getNickname())
+                        .build())
+                .collect(Collectors.toUnmodifiableList());
+        return BoardListResponseDto.builder()
+                .boardList(boardList)
                 .build();
     }
 }

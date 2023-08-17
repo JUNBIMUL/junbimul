@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserSignupResponseDto {
     private Long userId;
-    private String nickname;
 }

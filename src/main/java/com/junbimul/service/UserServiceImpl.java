@@ -26,19 +26,22 @@ public class UserServiceImpl implements UserService {
     public UserSignupResponseDto join(UserSignupRequestDto userSignupRequestDto) {
         String nickname = userSignupRequestDto.getNickname();
         List<User> findUserList = userRepository.findByNickname(nickname);
-        System.out.println("findUserList = " + findUserList.size());
         if (findUserList.size() != 0) {
             throw new UserApiException(UserErrorCode.USER_DUPLICATE_EXCEPTION);
         }
         if (userSignupRequestDto.getNickname().length() > 30) {
             throw new UserApiException(UserErrorCode.USER_NICKNAME_LENGTH_OVER);
         }
-        User signupUser = User.builder().nickname(nickname).build();
-        userRepository.save(signupUser);
-        Long madeId = userRepository.findById(signupUser.getId()).getId();
+        if (userSignupRequestDto.getNickname().length() == 0) {
+            throw new UserApiException(UserErrorCode.USER_NICKNAME_LENGTH_ZERO);
+        }
+        User signupUser = User.builder()
+                .nickname(nickname)
+                .build();
+        Long madeUserId = userRepository.save(signupUser);
 
         return UserSignupResponseDto.builder()
-                .userId(madeId)
+                .userId(madeUserId)
                 .build();
     }
 
