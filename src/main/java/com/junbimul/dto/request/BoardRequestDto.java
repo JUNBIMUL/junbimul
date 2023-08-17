@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BoardRequestDto {
     private Long boardId;
+    private Long userId;
     private String title;
     private String content;
+
 }

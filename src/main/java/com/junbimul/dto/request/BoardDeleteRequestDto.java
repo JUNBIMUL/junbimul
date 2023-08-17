@@ -1,4 +1,4 @@
-package com.junbimul.dto.response;
+package com.junbimul.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserSignupResponseDto {
+public class BoardDeleteRequestDto {
+    private Long boardId;
     private Long userId;
 }

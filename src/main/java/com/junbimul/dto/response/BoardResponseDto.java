@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class BoardResponseDto {
     private Long boardId;
     private String title;
-    private String content;
     private Long viewCnt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

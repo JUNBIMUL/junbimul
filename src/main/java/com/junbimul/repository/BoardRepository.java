@@ -26,7 +26,7 @@ public class BoardRepository {
     }
 
     // 게시글 하나 가져오기
-    public Board findOne(Long id) {
+    public Board findById(Long id) {
         return em.find(Board.class, id);
     }
 

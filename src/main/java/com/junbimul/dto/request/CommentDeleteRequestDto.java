@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class CommentDeleteRequestDto {
-    private long commentId;
+    private Long commentId;
+    private Long userId;
 }

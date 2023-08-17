@@ -1,6 +1,8 @@
 package com.junbimul.controller;
 
 import com.junbimul.dto.CombinedDto;
+import com.junbimul.dto.request.BoardDeleteRequestDto;
+import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
@@ -25,6 +27,7 @@ public class BoardController {
         UserRequestDto userDto = combinedDto.getUserRequestDto();
 
         BoardWriteResponseDto boardWriteResponseDto = boardService.registerBoard(boardDto, userDto);
+
         return ResponseEntity.ok(boardWriteResponseDto);
     }
 
@@ -37,18 +40,19 @@ public class BoardController {
     @GetMapping("/board/{id}")
     @Operation(summary = "게시글 상세 조회")
     public ResponseEntity<BoardDetailResponseDto> getBoard(@PathVariable Long id) {
-        return ResponseEntity.ok(boardService.getBoardDetailById(id));
+        BoardDetailResponseDto boardDetailById = boardService.getBoardDetailById(id);
+        return ResponseEntity.ok(boardDetailById);
     }
 
     @PutMapping("/board")
     @Operation(summary = "게시글 수정")
-    public ResponseEntity<BoardModifyResponseDto> modifyBoard(@RequestBody BoardRequestDto boardRequestDto) {
-        return ResponseEntity.ok(boardService.modifyBoard(boardRequestDto));
+    public ResponseEntity<BoardModifyResponseDto> modifyBoard(@RequestBody BoardModifyRequestDto boardModifyRequestDto) {
+        return ResponseEntity.ok(boardService.modifyBoard(boardModifyRequestDto));
     }
 
     @DeleteMapping("/board")
     @Operation(summary = "게시글 삭제")
-    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardRequestDto boardRequestDto) {
-        return ResponseEntity.ok(boardService.deleteBoard(boardRequestDto));
+    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardDeleteRequestDto boardDeleteRequestDto) {
+        return ResponseEntity.ok(boardService.deleteBoard(boardDeleteRequestDto));
     }
 }
