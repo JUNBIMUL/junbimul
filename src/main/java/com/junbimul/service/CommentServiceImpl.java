@@ -9,8 +9,10 @@ import com.junbimul.dto.request.CommentRequestDto;
 import com.junbimul.dto.response.CommentDeleteResponseDto;
 import com.junbimul.dto.response.CommentModifyResponseDto;
 import com.junbimul.dto.response.CommentWriteResponseDto;
+import com.junbimul.error.exception.BoardApiException;
 import com.junbimul.error.exception.CommentApiException;
 import com.junbimul.error.exception.UserApiException;
+import com.junbimul.error.model.BoardErrorCode;
 import com.junbimul.error.model.CommentErrorCode;
 import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.BoardRepository;
@@ -37,10 +39,14 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentApiException(CommentErrorCode.COMMENT_CONTENT_LENGTH_ZERO);
         }
         // 여기서 하나씩 뽑아
-        Long boardId = commentRequestDto.getBoardId();
-        Long userId = commentRequestDto.getUserId();
-        Board findBoard = boardRepository.findById(boardId);
-        User findUser = userRepository.findById(userId);
+        Board findBoard = boardRepository.findById(commentRequestDto.getBoardId());
+        if (findBoard == null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
+        }
+        User findUser = userRepository.findById(commentRequestDto.getUserId());
+        if (findUser == null) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+        }
 
         Comment comment = Comment.builder()
                 .board(findBoard)

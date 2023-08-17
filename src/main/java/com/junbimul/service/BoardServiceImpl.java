@@ -33,7 +33,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 등록
     public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
-        checkTitleContentLength(boardRequestDto);
+        checkTitleContentLength(boardRequestDto.getTitle(), boardRequestDto.getContent());
         User findUser = userRepository.findById(userDto.getUserId());
         if (findUser == null) {
             throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
@@ -50,17 +50,17 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
-    private static void checkTitleContentLength(BoardRequestDto boardRequestDto) {
-        if (boardRequestDto.getTitle().length() > 30) {
+    private static void checkTitleContentLength(String title, String content) {
+        if (title.length() > 30) {
             throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
         }
-        if (boardRequestDto.getTitle().length() == 0) {
+        if (title.length() == 0) {
             throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
         }
-        if (boardRequestDto.getContent().length() > 200) {
+        if (content.length() > 200) {
             throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
         }
-        if (boardRequestDto.getContent().length() == 0) {
+        if (content.length() == 0) {
             throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
         }
     }
@@ -115,18 +115,7 @@ public class BoardServiceImpl implements BoardService {
         if (findBoard.getUser().getId() != findUser.getId()) {
             throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
         }
-        if (boardModifyRequestDto.getTitle().length() > 30) {
-            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
-        }
-        if (boardModifyRequestDto.getTitle().length() == 0) {
-            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
-        }
-        if (boardModifyRequestDto.getContent().length() > 200) {
-            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
-        }
-        if (boardModifyRequestDto.getContent().length() == 0) {
-            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
-        }
+        checkTitleContentLength(boardModifyRequestDto.getTitle(), boardModifyRequestDto.getContent());
 
         String modifiedTitle = boardModifyRequestDto.getTitle();
         String modifiedContent = boardModifyRequestDto.getContent();
