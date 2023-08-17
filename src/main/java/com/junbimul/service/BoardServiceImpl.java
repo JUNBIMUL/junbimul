@@ -3,14 +3,11 @@ package com.junbimul.service;
 import com.junbimul.domain.Board;
 import com.junbimul.domain.Comment;
 import com.junbimul.domain.User;
+import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
-import com.junbimul.error.exception.BoardApiException;
-import com.junbimul.error.exception.UserApiException;
-import com.junbimul.error.model.BoardErrorCode;
-import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.BoardRepository;
 import com.junbimul.repository.CommentRepository;
 import com.junbimul.repository.UserRepository;
@@ -21,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.junbimul.error.ErrorCheckMethods.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +34,7 @@ public class BoardServiceImpl implements BoardService {
     public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
         checkTitleContentLength(boardRequestDto.getTitle(), boardRequestDto.getContent());
         User findUser = userRepository.findById(userDto.getUserId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
-
+        userNullCheck(findUser);
         Board board = Board.builder()
                 .title(boardRequestDto.getTitle())
                 .content(boardRequestDto.getContent())
@@ -50,29 +46,10 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
-    private static void checkTitleContentLength(String title, String content) {
-        if (title.length() > 30) {
-            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
-        }
-        if (title.length() == 0) {
-            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
-        }
-        if (content.length() > 200) {
-            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
-        }
-        if (content.length() == 0) {
-            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
-        }
-    }
 
     public BoardDetailResponseDto getBoardDetailById(Long id) {
         Board findBoard = boardRepository.findById(id);
-        if (findBoard == null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
-        }
-        if (findBoard.getDeletedAt() != null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
-        }
+        boardNullAndDeletedCheck(findBoard);
         findBoard.updateViewCount();
         List<Comment> commentsByBoardId = commentRepository.findCommentsByBoard(id)
                 .stream()
@@ -98,52 +75,27 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
-    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto) {
 
+    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto) {
         Board findBoard = boardRepository.findById(boardModifyRequestDto.getBoardId());
         User findUser = userRepository.findById(boardModifyRequestDto.getUserId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
-        if (findBoard == null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
-        }
-        if (findBoard.getDeletedAt() != null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
-        }
-
-        if (findBoard.getUser().getId() != findUser.getId()) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
-        }
+        userBoardNullCheckAndHasSameId(findBoard, findUser);
         checkTitleContentLength(boardModifyRequestDto.getTitle(), boardModifyRequestDto.getContent());
-
-        String modifiedTitle = boardModifyRequestDto.getTitle();
-        String modifiedContent = boardModifyRequestDto.getContent();
-        findBoard.modify(modifiedTitle, modifiedContent, LocalDateTime.now());
+        findBoard.modify(boardModifyRequestDto.getTitle(), boardModifyRequestDto.getContent(), LocalDateTime.now());
 
         return BoardModifyResponseDto.builder()
                 .boardId(findBoard.getId())
                 .build();
     }
 
-    public BoardDeleteResponseDto deleteBoard(BoardRequestDto boardRequestDto) {
-        Board findBoard = boardRepository.findById(boardRequestDto.getBoardId());
-        User findUser = userRepository.findById(boardRequestDto.getUserId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
-        if (findBoard == null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
-        }
-        if (findBoard.getDeletedAt() != null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
-        }
-        if (findBoard.getUser().getId() != findUser.getId()) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
-        }
+
+    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto) {
+        Board findBoard = boardRepository.findById(boardDeleteRequestDto.getBoardId());
+        User findUser = userRepository.findById(boardDeleteRequestDto.getUserId());
+        userBoardNullCheckAndHasSameId(findBoard, findUser);
         findBoard.delete(LocalDateTime.now());
         for (Comment comment : findBoard.getComments()) {
-            if(comment.getDeletedAt() != null) continue;
+            if (comment.getDeletedAt() != null) continue;
             comment.deleteComment();
         }
 
@@ -169,4 +121,6 @@ public class BoardServiceImpl implements BoardService {
                 .boardList(boardList)
                 .build();
     }
+
+
 }

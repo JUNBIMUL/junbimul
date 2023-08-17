@@ -9,18 +9,14 @@ import com.junbimul.dto.request.CommentRequestDto;
 import com.junbimul.dto.response.CommentDeleteResponseDto;
 import com.junbimul.dto.response.CommentModifyResponseDto;
 import com.junbimul.dto.response.CommentWriteResponseDto;
-import com.junbimul.error.exception.BoardApiException;
-import com.junbimul.error.exception.CommentApiException;
-import com.junbimul.error.exception.UserApiException;
-import com.junbimul.error.model.BoardErrorCode;
-import com.junbimul.error.model.CommentErrorCode;
-import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.BoardRepository;
 import com.junbimul.repository.CommentRepository;
 import com.junbimul.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.junbimul.error.ErrorCheckMethods.*;
 
 
 @Service
@@ -32,21 +28,11 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     public CommentWriteResponseDto registComment(CommentRequestDto commentRequestDto) {
-        if (commentRequestDto.getContent().length() > 200) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_CONTENT_LENGTH_OVER);
-        }
-        if (commentRequestDto.getContent().length() == 0) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_CONTENT_LENGTH_ZERO);
-        }
-        // 여기서 하나씩 뽑아
+        commentContentLengthCheck(commentRequestDto.getContent());
         Board findBoard = boardRepository.findById(commentRequestDto.getBoardId());
-        if (findBoard == null) {
-            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
-        }
+        boardNullAndDeletedCheck(findBoard);
         User findUser = userRepository.findById(commentRequestDto.getUserId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
+        userNullCheck(findUser);
 
         Comment comment = Comment.builder()
                 .board(findBoard)
@@ -62,24 +48,14 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
+
     public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto) {
         Comment findComment = commentRepository.findById(commentModifyRequestDto.getCommentId());
-        if (findComment == null) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_ID_NOT_FOUND);
-        }
+        commentNullCheck(findComment);
         User findUser = userRepository.findById(commentModifyRequestDto.getCommentId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
-        if (findComment.getUser().getId() != findUser.getId()) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
-        }
-        if (commentModifyRequestDto.getContent().length() > 200) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_CONTENT_LENGTH_OVER);
-        }
-        if (commentModifyRequestDto.getContent().length() == 0) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_CONTENT_LENGTH_ZERO);
-        }
+        userNullCheck(findUser);
+        commentUserIdCheck(findComment, findUser);
+        commentContentLengthCheck(commentModifyRequestDto.getContent());
         findComment.modifyContent(commentModifyRequestDto.getContent());
         return CommentModifyResponseDto.builder()
                 .commentId(findComment.getId())
@@ -87,22 +63,19 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+
     public CommentDeleteResponseDto deleteComment(CommentDeleteRequestDto commentDeleteRequestDto) {
         Comment findComment = commentRepository.findById(commentDeleteRequestDto.getCommentId());
-        if (findComment == null) {
-            throw new CommentApiException(CommentErrorCode.COMMENT_ID_NOT_FOUND);
-        }
+        commentNullCheck(findComment);
         User findUser = userRepository.findById(commentDeleteRequestDto.getUserId());
-        if (findUser == null) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-        }
-        if (findComment.getUser().getId() != findUser.getId()) {
-            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
-        }
+        userNullCheck(findUser);
+        commentUserIdCheck(findComment, findUser);
         findComment.deleteComment();
 
         return CommentDeleteResponseDto.builder()
                 .commentId(findComment.getId())
                 .build();
     }
+
+
 }

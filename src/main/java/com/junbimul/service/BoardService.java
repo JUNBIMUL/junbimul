@@ -1,5 +1,6 @@
 package com.junbimul.service;
 
+import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
@@ -14,6 +15,6 @@ public interface BoardService {
 
     public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto);
 
-    public BoardDeleteResponseDto deleteBoard(BoardRequestDto boardRequestDto);
+    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto);
 
 }
