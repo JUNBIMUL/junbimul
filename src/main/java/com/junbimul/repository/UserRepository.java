@@ -29,8 +29,14 @@ public class UserRepository {
         return em.find(User.class, id);
     }
 
-    public List<User> findUsers(){
+    public List<User> findUsers() {
         return em.createQuery("select u from User u", User.class).getResultList();
+    }
+
+    public List<User> findByUserId(String userId) {
+        return em.createQuery("select u from User u where u.userId = :userId", User.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 
 }
