@@ -33,7 +33,7 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 등록
     public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
         checkTitleContentLength(boardRequestDto.getTitle(), boardRequestDto.getContent());
-        User findUser = userRepository.findById(userDto.getUserId());
+        User findUser = userRepository.findById(userDto.getLoginId());
         userNullCheck(findUser);
         Board board = Board.builder()
                 .title(boardRequestDto.getTitle())

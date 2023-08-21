@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class UserRequestDto {
-    private Long userId;
+    private Long loginId;
     private String nickname;
 }

@@ -14,11 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 @Tag(name = "유저")
 @RequiredArgsConstructor
 public class UserController {
@@ -27,7 +28,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "회원 가입")
-    public ResponseEntity<UserSignupResponseDto> signup(@RequestBody UserSignupRequestDto userDto) {
+    public ResponseEntity signup(@RequestBody UserSignupRequestDto userDto) {
         return ResponseEntity.ok(userService.join(userDto));
     }
 
@@ -39,8 +40,8 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto) throws NoSuchAlgorithmException {
-        return ResponseEntity.ok(userService.login(userLoginRequestDto));
+    public ResponseEntity<UserLoginResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) throws NoSuchAlgorithmException {
+        return ResponseEntity.ok(userService.login(userLoginRequestDto, response));
     }
 
     @GetMapping("/check-duplicate/userid")

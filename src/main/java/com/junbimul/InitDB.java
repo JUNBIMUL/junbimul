@@ -36,12 +36,12 @@ public class InitDB {
         // 댓글 1, 2
         public void DBInit() throws NoSuchAlgorithmException {
             User user1 = User.builder()
-                    .userId("곤할영")
+                    .loginId("곤할영")
                     .password(new SHA256().encrypt("곤할영"))
                     .nickname("나롱치")
                     .build();
             User user2 = User.builder()
-                    .userId("침민구")
+                    .loginId("침민구")
                     .password(new SHA256().encrypt("침민구"))
                     .nickname("침키민구")
                     .build();
