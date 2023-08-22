@@ -1,5 +1,6 @@
 package com.junbimul.service;
 
+import com.junbimul.common.ConstProperties;
 import com.junbimul.domain.Board;
 import com.junbimul.domain.Comment;
 import com.junbimul.domain.User;
@@ -8,10 +9,15 @@ import com.junbimul.dto.request.BoardModifyRequestDto;
 import com.junbimul.dto.request.BoardRequestDto;
 import com.junbimul.dto.request.UserRequestDto;
 import com.junbimul.dto.response.*;
+import com.junbimul.error.exception.BoardApiException;
+import com.junbimul.error.exception.UserApiException;
+import com.junbimul.error.model.BoardErrorCode;
+import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.BoardRepository;
 import com.junbimul.repository.CommentRepository;
 import com.junbimul.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,16 +25,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.junbimul.error.ErrorCheckMethods.*;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
+@EnableConfigurationProperties(ConstProperties.class)
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ConstProperties constProperties;
 
     // 게시글 등록
     public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
@@ -122,5 +128,43 @@ public class BoardServiceImpl implements BoardService {
                 .build();
     }
 
+    public void userNullCheck(User findUser) {
+        if (findUser == null) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+        }
+    }
+
+    public void boardNullAndDeletedCheck(Board findBoard) {
+        if (findBoard == null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_NOT_FOUND);
+        }
+        if (findBoard.getDeletedAt() != null) {
+            throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
+        }
+    }
+
+    public void userBoardNullCheckAndHasSameId(Board findBoard, User findUser) {
+        userNullCheck(findUser);
+        boardNullAndDeletedCheck(findBoard);
+
+        if (findBoard.getUser().getId() != findUser.getId()) {
+            throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
+        }
+    }
+
+    public void checkTitleContentLength(String title, String content) {
+        if (title.length() > constProperties.getBoardTitleLength()) {
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_OVER);
+        }
+        if (title.length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_TITLE_LENGTH_ZERO);
+        }
+        if (content.length() > constProperties.getBoardContentLength()) {
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_OVER);
+        }
+        if (content.length() == 0) {
+            throw new BoardApiException(BoardErrorCode.BOARD_CONTENT_LENGTH_ZERO);
+        }
+    }
 
 }

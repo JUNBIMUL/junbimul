@@ -1,6 +1,8 @@
 package com.junbimul.service;
 
+import com.junbimul.common.ConstProperties;
 import com.junbimul.common.CookieUtil;
+import com.junbimul.common.SHA256;
 import com.junbimul.config.security.JwtTokenUtil;
 import com.junbimul.domain.User;
 import com.junbimul.dto.request.UserLoginRequestDto;
@@ -13,6 +15,7 @@ import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,15 +24,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.junbimul.error.ErrorCheckMethods.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
+@EnableConfigurationProperties(ConstProperties.class)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ConstProperties constProperties;
 
     public UserSignupResponseDto join(UserSignupRequestDto userSignupRequestDto) {
         String nickname = userSignupRequestDto.getNickname();
@@ -96,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean checkUserIdDuplicated(String loginId) {
-        checkUserIdLength(loginId);
+        checkLoginidLength(loginId);
         return userRepository.findByLoginId(loginId).size() == 1;
     }
 
@@ -105,6 +108,36 @@ public class UserServiceImpl implements UserService {
     public boolean checkUserNicknameDuplicated(String nickname) {
         checkNicknameLength(nickname);
         return userRepository.findByNickname(nickname).size() == 1;
+    }
+
+    public void checkLoginidLength(String userId) {
+        if (userId.length() == 0) {
+            throw new UserApiException(UserErrorCode.USER_USERID_LENGTH_ZERO);
+        }
+        if (userId.length() > constProperties.getUserLoginidLength()) {
+            throw new UserApiException(UserErrorCode.USER_USERID_LENGTH_OVER);
+        }
+    }
+
+    public void checkNicknameLength(String nickname) {
+        if (nickname.length() == 0) {
+            throw new UserApiException(UserErrorCode.USER_USERID_LENGTH_ZERO);
+        }
+        if (nickname.length() > constProperties.getUserNicknameLength()) {
+            throw new UserApiException(UserErrorCode.USER_USERID_LENGTH_OVER);
+        }
+    }
+
+    public void checkUserPassword(UserLoginRequestDto userLoginRequestDto, User findUser) throws NoSuchAlgorithmException {
+        if (!findUser.getPassword().equals(new SHA256().encrypt(userLoginRequestDto.getPassword()))) {
+            throw new UserApiException(UserErrorCode.USER_PASSWORD_INCORRECT);
+        }
+    }
+
+    public void checkUserIdExists(List<User> findUserList) {
+        if (findUserList.size() != 1) {
+            throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
+        }
     }
 
 

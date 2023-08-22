@@ -19,3 +19,13 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+
+const:
+  user-loginid-length : 50
+  user-password-length : 255
+  user_nickname_length : 30
+  board-title-length : 30
+  board-content-length : 300
+  comment-content-length : 200
+
+
