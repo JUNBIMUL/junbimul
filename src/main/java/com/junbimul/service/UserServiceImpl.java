@@ -3,7 +3,7 @@ package com.junbimul.service;
 import com.junbimul.common.ConstProperties;
 import com.junbimul.common.CookieUtil;
 import com.junbimul.common.SHA256;
-import com.junbimul.config.security.JwtTokenUtil;
+import com.junbimul.config.security.JwtTokenProvider;
 import com.junbimul.domain.User;
 import com.junbimul.dto.request.UserLoginRequestDto;
 import com.junbimul.dto.request.UserSignupRequestDto;
@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ConstProperties constProperties;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public UserSignupResponseDto join(UserSignupRequestDto userSignupRequestDto) {
         String nickname = userSignupRequestDto.getNickname();
@@ -84,8 +85,8 @@ public class UserServiceImpl implements UserService {
         checkUserIdExists(findUserList);
         User findUser = findUserList.get(0);
         checkUserPassword(userLoginRequestDto, findUser);
-        String accessToken = JwtTokenUtil.createAccessToken(findUser.getLoginId(), "kk", 1000 * 30);// 30초
-        String refreshToken = JwtTokenUtil.createRefreshToken(findUser.getLoginId(), "kk", 1000 * 60 * 60 * 24);// 1일
+        String accessToken = jwtTokenProvider.createAccessToken(findUser.getLoginId(), "kk", 1000 * 30);// 30초
+        String refreshToken = jwtTokenProvider.createRefreshToken(findUser.getLoginId(), "kk", 1000 * 60 * 60 * 24);// 1일
         CookieUtil.setAccessToken(response, accessToken);
         CookieUtil.setRefreshToken(response, refreshToken);
         findUser.settingToken(accessToken, refreshToken);
@@ -108,6 +109,18 @@ public class UserServiceImpl implements UserService {
     public boolean checkUserNicknameDuplicated(String nickname) {
         checkNicknameLength(nickname);
         return userRepository.findByNickname(nickname).size() == 1;
+    }
+
+    @Override
+    public String getAccessToken(Long id) {
+        User findUser = userRepository.findById(id);
+        return findUser.getAccessToken();
+    }
+
+    @Override
+    public String getRefreshToken(Long id) {
+        User findUser = userRepository.findById(id);
+        return findUser.getRefreshToken();
     }
 
     public void checkLoginidLength(String userId) {

@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -18,10 +19,12 @@ import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserService userService;
     private final String secretKey;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,12 +44,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String token = authorizationHeader.split(" ")[1];
 
         // if 만료 -> X,
-        if (JwtTokenUtil.isExpired(token, secretKey)) {
+        if (jwtTokenProvider.isExpired(token, secretKey)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String loginId = JwtTokenUtil.getLoginId(token, secretKey);
+        String loginId = jwtTokenProvider.getLoginId(token, secretKey);
         User loginUser = userService.getUserByLoginId(loginId);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

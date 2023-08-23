@@ -20,4 +20,6 @@ public interface UserService {
     public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) throws NoSuchAlgorithmException;
     public boolean checkUserIdDuplicated(String userId);
     public boolean checkUserNicknameDuplicated(String nickname);
+    public String getAccessToken(Long id);
+    public String getRefreshToken(Long id);
 }
