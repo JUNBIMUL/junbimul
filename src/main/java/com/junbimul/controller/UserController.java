@@ -1,5 +1,6 @@
 package com.junbimul.controller;
 
+import com.junbimul.config.JwtUtil;
 import com.junbimul.dto.request.UserLoginRequestDto;
 import com.junbimul.dto.request.UserSignupRequestDto;
 import com.junbimul.dto.response.UserLoginResponseDto;
@@ -25,6 +26,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     @Operation(summary = "회원 가입")
@@ -41,7 +43,8 @@ public class UserController {
     @PostMapping("/login")
     @Operation(summary = "로그인")
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) throws NoSuchAlgorithmException {
-        return ResponseEntity.ok(userService.login(userLoginRequestDto, response));
+
+        return ResponseEntity.ok(userService.login(userLoginRequestDto));
     }
 
     @GetMapping("/check-duplicate/userid")

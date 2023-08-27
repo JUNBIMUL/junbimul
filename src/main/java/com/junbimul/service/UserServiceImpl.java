@@ -1,9 +1,8 @@
 package com.junbimul.service;
 
 import com.junbimul.common.ConstProperties;
-import com.junbimul.common.CookieUtil;
 import com.junbimul.common.SHA256;
-import com.junbimul.config.security.JwtTokenProvider;
+import com.junbimul.config.JwtUtil;
 import com.junbimul.domain.User;
 import com.junbimul.dto.request.UserLoginRequestDto;
 import com.junbimul.dto.request.UserSignupRequestDto;
@@ -19,7 +18,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ConstProperties constProperties;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtUtil jwtUtil;
 
     public UserSignupResponseDto join(UserSignupRequestDto userSignupRequestDto) {
         String nickname = userSignupRequestDto.getNickname();
@@ -73,24 +71,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByLoginId(String loginId) {
         List<User> findUserList = userRepository.findByLoginId(loginId);
-        if (findUserList.size() != 0) {
+        if (findUserList.size() == 0) {
             throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
         }
         return findUserList.get(0);
     }
 
     @Override
-    public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) throws NoSuchAlgorithmException {
+    public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto) throws NoSuchAlgorithmException {
         List<User> findUserList = userRepository.findByLoginId(userLoginRequestDto.getLoginId());
         checkUserIdExists(findUserList);
         User findUser = findUserList.get(0);
         checkUserPassword(userLoginRequestDto, findUser);
-        String accessToken = jwtTokenProvider.createAccessToken(findUser.getLoginId(), "kk", 1000 * 30);// 30초
-        String refreshToken = jwtTokenProvider.createRefreshToken(findUser.getLoginId(), "kk", 1000 * 60 * 60 * 24);// 1일
-        CookieUtil.setAccessToken(response, accessToken);
-        CookieUtil.setRefreshToken(response, refreshToken);
+        String accessToken = jwtUtil.generateAccessToken(findUser.getLoginId());
+        String refreshToken = jwtUtil.generateRefreshToken(findUser.getLoginId());
         findUser.settingToken(accessToken, refreshToken);
-
         return UserLoginResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
