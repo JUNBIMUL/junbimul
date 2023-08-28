@@ -1,10 +1,9 @@
-package com.junbimul.config;
+package com.junbimul.utils;
 
 import com.junbimul.domain.User;
 import com.junbimul.error.exception.UserApiException;
 import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.UserRepository;
-import com.junbimul.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,11 +18,9 @@ import java.util.List;
 public class JwtUtil {
 
     private final String SECRET_KEY = "abcdefghihklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 60; // 5min
-    private final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 60;  // 3min
-
+    private final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 3;  // 3min
+    private final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 10; // 10min
     private final UserRepository userRepository;
-
 
     public final String generateAccessToken(String subject) {
         return generateToken(subject, ACCESS_TOKEN_EXPIRATION_TIME);
@@ -59,16 +56,15 @@ public class JwtUtil {
     }
 
     private boolean isTokenExpired(String token) {
-        return getClaims(token).getExpiration().after(new Date(System.currentTimeMillis()));
+        return getClaims(token).getExpiration().before(new Date(System.currentTimeMillis()));
     }
 
     public boolean validateToken(String token) {
         String loginId = getJwtTokenLoginId(token);
-        System.out.println("loginId = " + loginId);
         List<User> findUserList = userRepository.findByLoginId(loginId);
         if (findUserList.size() == 0) {
             throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
         }
-        return isTokenExpired(token);
+        return !isTokenExpired(token);
     }
 }
