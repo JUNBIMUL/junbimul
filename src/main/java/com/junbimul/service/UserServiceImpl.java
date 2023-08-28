@@ -2,22 +2,27 @@ package com.junbimul.service;
 
 import com.junbimul.common.ConstProperties;
 import com.junbimul.common.SHA256;
-import com.junbimul.config.JwtUtil;
 import com.junbimul.domain.User;
 import com.junbimul.dto.request.UserLoginRequestDto;
 import com.junbimul.dto.request.UserSignupRequestDto;
 import com.junbimul.dto.response.UserLoginResponseDto;
+import com.junbimul.dto.response.UserReissueResponseDto;
 import com.junbimul.dto.response.UserResponseDto;
 import com.junbimul.dto.response.UserSignupResponseDto;
 import com.junbimul.error.exception.UserApiException;
 import com.junbimul.error.model.UserErrorCode;
 import com.junbimul.repository.UserRepository;
+import com.junbimul.utils.CookieUtil;
+import com.junbimul.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,18 +83,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto) throws NoSuchAlgorithmException {
+    public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto, HttpServletResponse httpServletResponse) throws NoSuchAlgorithmException {
         List<User> findUserList = userRepository.findByLoginId(userLoginRequestDto.getLoginId());
         checkUserIdExists(findUserList);
         User findUser = findUserList.get(0);
         checkUserPassword(userLoginRequestDto, findUser);
         String accessToken = jwtUtil.generateAccessToken(findUser.getLoginId());
         String refreshToken = jwtUtil.generateRefreshToken(findUser.getLoginId());
+        httpServletResponse.addCookie(CookieUtil.makeRefreshToken(refreshToken));
+
         findUser.settingToken(accessToken, refreshToken);
         return UserLoginResponseDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
+    }
+
+    @Override
+    public UserReissueResponseDto reissueToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String userRefreshToken = "";
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("REFRESH_TOKEN")) {
+                userRefreshToken = cookie.getValue();
+                String loginId = jwtUtil.getJwtTokenLoginId(userRefreshToken);
+                User findUser = userRepository.findByLoginId(loginId).get(0);
+
+                String currentRefreshToken = findUser.getRefreshToken();
+                if (!userRefreshToken.equals(currentRefreshToken)) {
+                    throw new UserApiException(UserErrorCode.USER_REFRESHTOKEN_NOT_MATCH);
+                }
+                if (!jwtUtil.validateToken(currentRefreshToken)) {
+                    throw new UserApiException(UserErrorCode.USER_REFRESHTOKEN_EXPIRED);
+                }
+                String accessToken = jwtUtil.generateAccessToken(loginId);
+                String refreshToken = jwtUtil.generateRefreshToken(loginId);
+                CookieUtil.makeRefreshToken(refreshToken);
+                findUser.settingToken(accessToken, refreshToken);
+                return UserReissueResponseDto.builder()
+                        .accessToken(accessToken)
+                        .build();
+            }
+        }
+        throw new UserApiException(UserErrorCode.USER_REFRESHTOKEN_EXPIRED);
+
     }
 
 
@@ -117,6 +153,7 @@ public class UserServiceImpl implements UserService {
         User findUser = userRepository.findById(id);
         return findUser.getRefreshToken();
     }
+
 
     public void checkLoginidLength(String userId) {
         if (userId.length() == 0) {

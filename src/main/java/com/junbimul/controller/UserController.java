@@ -1,13 +1,11 @@
 package com.junbimul.controller;
 
-import com.junbimul.config.JwtUtil;
 import com.junbimul.dto.request.UserLoginRequestDto;
 import com.junbimul.dto.request.UserSignupRequestDto;
 import com.junbimul.dto.response.UserLoginResponseDto;
+import com.junbimul.dto.response.UserReissueResponseDto;
 import com.junbimul.dto.response.UserResponseDto;
-import com.junbimul.dto.response.UserSignupResponseDto;
 import com.junbimul.service.UserService;
-import com.junbimul.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
     @Operation(summary = "회원 가입")
@@ -44,7 +42,7 @@ public class UserController {
     @Operation(summary = "로그인")
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) throws NoSuchAlgorithmException {
 
-        return ResponseEntity.ok(userService.login(userLoginRequestDto));
+        return ResponseEntity.ok(userService.login(userLoginRequestDto, response));
     }
 
     @GetMapping("/check-duplicate/userid")
@@ -63,5 +61,11 @@ public class UserController {
             return ResponseEntity.ok(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "refresh token 재발급")
+    public ResponseEntity<UserReissueResponseDto> reIssue(HttpServletRequest request) {
+        return ResponseEntity.ok(userService.reissueToken(request));
     }
 }

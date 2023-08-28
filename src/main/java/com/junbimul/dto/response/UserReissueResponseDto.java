@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserLoginResponseDto {
+public class UserReissueResponseDto {
     private String accessToken;
 }
