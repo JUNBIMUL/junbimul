@@ -6,8 +6,7 @@ import com.junbimul.domain.Comment;
 import com.junbimul.domain.User;
 import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
-import com.junbimul.dto.request.BoardRequestDto;
-import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.request.BoardWriteRequestDto;
 import com.junbimul.dto.response.*;
 import com.junbimul.error.exception.BoardApiException;
 import com.junbimul.error.exception.UserApiException;
@@ -37,19 +36,26 @@ public class BoardServiceImpl implements BoardService {
     private final ConstProperties constProperties;
 
     // 게시글 등록
-    public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto) {
-        checkTitleContentLength(boardRequestDto.getTitle(), boardRequestDto.getContent());
-        User findUser = userRepository.findById(userDto.getLoginId());
-        userNullCheck(findUser);
+    public BoardWriteResponseDto registerBoard(BoardWriteRequestDto boardWriteRequestDto, String loginId) {
+        checkTitleContentLength(boardWriteRequestDto.getTitle(), boardWriteRequestDto.getContent());
+        User findUser = findUserByLoginId(loginId);
         Board board = Board.builder()
-                .title(boardRequestDto.getTitle())
-                .content(boardRequestDto.getContent())
+                .title(boardWriteRequestDto.getTitle())
+                .content(boardWriteRequestDto.getContent())
                 .viewCnt(0L)
                 .user(findUser).build();
         Long boardId = boardRepository.save(board);
         return BoardWriteResponseDto.builder()
                 .boardId(boardId)
                 .build();
+    }
+
+    private User findUserByLoginId(String loginId) {
+        List<User> findUserList = userRepository.findByLoginId(loginId);
+        if (findUserList.size() != 1) throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
+        User findUser = findUserList.get(0);
+        userNullCheck(findUser);
+        return findUser;
     }
 
 
@@ -82,9 +88,9 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto) {
+    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto, String loginId) {
         Board findBoard = boardRepository.findById(boardModifyRequestDto.getBoardId());
-        User findUser = userRepository.findById(boardModifyRequestDto.getUserId());
+        User findUser = findUserByLoginId(loginId);
         userBoardNullCheckAndHasSameId(findBoard, findUser);
         checkTitleContentLength(boardModifyRequestDto.getTitle(), boardModifyRequestDto.getContent());
         findBoard.modify(boardModifyRequestDto.getTitle(), boardModifyRequestDto.getContent(), LocalDateTime.now());
@@ -95,9 +101,11 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto) {
+    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto, String loginId) {
         Board findBoard = boardRepository.findById(boardDeleteRequestDto.getBoardId());
-        User findUser = userRepository.findById(boardDeleteRequestDto.getUserId());
+        List<User> findUserList = userRepository.findByLoginId(loginId);
+        if (findUserList.size() != 1) throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
+        User findUser = findUserList.get(0);
         userBoardNullCheckAndHasSameId(findBoard, findUser);
         findBoard.delete(LocalDateTime.now());
         for (Comment comment : findBoard.getComments()) {

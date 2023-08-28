@@ -1,17 +1,18 @@
 package com.junbimul.controller;
 
-import com.junbimul.dto.CombinedDto;
 import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
-import com.junbimul.dto.request.BoardRequestDto;
-import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.request.BoardWriteRequestDto;
 import com.junbimul.dto.response.*;
 import com.junbimul.service.BoardService;
+import com.junbimul.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @Tag(name = "게시글")
@@ -19,14 +20,13 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/board")
     @Operation(summary = "게시글 등록")
-    public ResponseEntity<?> writeBoard(@RequestBody CombinedDto combinedDto) {
-        BoardRequestDto boardDto = combinedDto.getBoardRequestDto();
-        UserRequestDto userDto = combinedDto.getUserRequestDto();
-
-        BoardWriteResponseDto boardWriteResponseDto = boardService.registerBoard(boardDto, userDto);
+    public ResponseEntity<?> writeBoard(@RequestBody BoardWriteRequestDto boardWriteRequestDto, HttpServletRequest request) {
+        String loginId = (String) request.getAttribute("loginId");
+        BoardWriteResponseDto boardWriteResponseDto = boardService.registerBoard(boardWriteRequestDto, loginId);
 
         return ResponseEntity.ok(boardWriteResponseDto);
     }
@@ -46,13 +46,15 @@ public class BoardController {
 
     @PutMapping("/board")
     @Operation(summary = "게시글 수정")
-    public ResponseEntity<BoardModifyResponseDto> modifyBoard(@RequestBody BoardModifyRequestDto boardModifyRequestDto) {
-        return ResponseEntity.ok(boardService.modifyBoard(boardModifyRequestDto));
+    public ResponseEntity<BoardModifyResponseDto> modifyBoard(@RequestBody BoardModifyRequestDto boardModifyRequestDto, HttpServletRequest request) {
+        String loginId = (String) request.getAttribute("loginId");
+        return ResponseEntity.ok(boardService.modifyBoard(boardModifyRequestDto, loginId));
     }
 
     @DeleteMapping("/board")
     @Operation(summary = "게시글 삭제")
-    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardDeleteRequestDto boardDeleteRequestDto) {
-        return ResponseEntity.ok(boardService.deleteBoard(boardDeleteRequestDto));
+    public ResponseEntity<BoardDeleteResponseDto> deleteBoard(@RequestBody BoardDeleteRequestDto boardDeleteRequestDto, HttpServletRequest request) {
+        String loginId = (String) request.getAttribute("loginId");
+        return ResponseEntity.ok(boardService.deleteBoard(boardDeleteRequestDto, loginId));
     }
 }

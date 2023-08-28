@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class BoardModifyRequestDto {
-    private Long boardId;
+public class BoardWriteRequestDto {
     private String title;
     private String content;
 }

@@ -2,19 +2,18 @@ package com.junbimul.service;
 
 import com.junbimul.dto.request.BoardDeleteRequestDto;
 import com.junbimul.dto.request.BoardModifyRequestDto;
-import com.junbimul.dto.request.BoardRequestDto;
-import com.junbimul.dto.request.UserRequestDto;
+import com.junbimul.dto.request.BoardWriteRequestDto;
 import com.junbimul.dto.response.*;
 
 public interface BoardService {
-    public BoardWriteResponseDto registerBoard(BoardRequestDto boardRequestDto, UserRequestDto userDto);
+    public BoardWriteResponseDto registerBoard(BoardWriteRequestDto boardRequestDto, String loginId);
 
     public BoardListResponseDto findBoards();
 
     public BoardDetailResponseDto getBoardDetailById(Long id);
 
-    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto);
+    public BoardModifyResponseDto modifyBoard(BoardModifyRequestDto boardModifyRequestDto, String loginId);
 
-    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto);
+    public BoardDeleteResponseDto deleteBoard(BoardDeleteRequestDto boardDeleteRequestDto, String loginId);
 
 }
