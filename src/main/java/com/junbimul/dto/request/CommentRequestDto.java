@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CommentRequestDto {
     Long boardId;
-    Long userId;
     String content;
 }

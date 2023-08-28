@@ -8,9 +8,9 @@ import com.junbimul.dto.response.CommentModifyResponseDto;
 import com.junbimul.dto.response.CommentWriteResponseDto;
 
 public interface CommentService {
-    public CommentWriteResponseDto registComment(CommentRequestDto commentRequestDto);
+    public CommentWriteResponseDto registComment(CommentRequestDto commentRequestDto, String loginId);
 
-    public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto);
+    public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto, String loginId);
 
-    public CommentDeleteResponseDto deleteComment(CommentDeleteRequestDto commentDeleteRequestDto);
+    public CommentDeleteResponseDto deleteComment(CommentDeleteRequestDto commentDeleteRequestDto, String loginId);
 }

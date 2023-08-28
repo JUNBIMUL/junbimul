@@ -24,6 +24,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +37,11 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final ConstProperties constProperties;
 
-    public CommentWriteResponseDto registComment(CommentRequestDto commentRequestDto) {
+    public CommentWriteResponseDto registComment(CommentRequestDto commentRequestDto, String loginId) {
         commentContentLengthCheck(commentRequestDto.getContent());
         Board findBoard = boardRepository.findById(commentRequestDto.getBoardId());
         boardNullAndDeletedCheck(findBoard);
-        User findUser = userRepository.findById(commentRequestDto.getUserId());
-        userNullCheck(findUser);
+        User findUser = findUserByLoginId(loginId);
 
         Comment comment = Comment.builder()
                 .board(findBoard)
@@ -57,11 +58,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
 
-    public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto) {
+    public CommentModifyResponseDto modifyComment(CommentModifyRequestDto commentModifyRequestDto, String loginId) {
         Comment findComment = commentRepository.findById(commentModifyRequestDto.getCommentId());
         commentNullCheck(findComment);
-        User findUser = userRepository.findById(commentModifyRequestDto.getUserId());
-        userNullCheck(findUser);
+        User findUser = findUserByLoginId(loginId);
         commentUserIdCheck(findComment, findUser);
         commentContentLengthCheck(commentModifyRequestDto.getContent());
         findComment.modifyContent(commentModifyRequestDto.getContent());
@@ -71,12 +71,19 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+    private User findUserByLoginId(String loginId) {
+        List<User> findUserList = userRepository.findByLoginId(loginId);
+        if (findUserList.size() != 1) throw new UserApiException(UserErrorCode.USER_USERID_NOT_FOUND);
+        User findUser = findUserList.get(0);
+        userNullCheck(findUser);
+        return findUser;
+    }
 
-    public CommentDeleteResponseDto deleteComment(CommentDeleteRequestDto commentDeleteRequestDto) {
+
+    public CommentDeleteResponseDto deleteComment(CommentDeleteRequestDto commentDeleteRequestDto, String loginId) {
         Comment findComment = commentRepository.findById(commentDeleteRequestDto.getCommentId());
         commentNullCheck(findComment);
-        User findUser = userRepository.findById(commentDeleteRequestDto.getUserId());
-        userNullCheck(findUser);
+        User findUser = findUserByLoginId(loginId);
         commentUserIdCheck(findComment, findUser);
         findComment.deleteComment();
 
@@ -98,6 +105,9 @@ public class CommentServiceImpl implements CommentService {
         if (findComment == null) {
             throw new CommentApiException(CommentErrorCode.COMMENT_ID_NOT_FOUND);
         }
+        if (findComment.getDeletedAt() != null) {
+            throw new CommentApiException(CommentErrorCode.CONTENT_DELETED);
+        }
     }
 
     public void commentUserIdCheck(Comment findComment, User findUser) {
@@ -105,6 +115,7 @@ public class CommentServiceImpl implements CommentService {
             throw new UserApiException(UserErrorCode.USER_ID_NOT_MATCH);
         }
     }
+
     public void userNullCheck(User findUser) {
         if (findUser == null) {
             throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
@@ -119,8 +130,6 @@ public class CommentServiceImpl implements CommentService {
             throw new BoardApiException(BoardErrorCode.BOARD_DELETED);
         }
     }
-
-
 
 
 }
