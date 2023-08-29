@@ -34,16 +34,9 @@ public class OpenApiConfig {
                 .in(SecurityScheme.In.HEADER)
                 .name("ACCESS_TOKEN");
 
-        SecurityScheme refreshTokenSecurityScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .bearerFormat("JWT")
-                .scheme("bearer")
-                .in(SecurityScheme.In.HEADER)
-                .name("REFRESH_TOKEN");
 
         Components components = new Components()
-                .addSecuritySchemes(key, accessTokenSecurityScheme)
-                .addSecuritySchemes(refreshKey, refreshTokenSecurityScheme);
+                .addSecuritySchemes(key, accessTokenSecurityScheme);
 
         return new OpenAPI()
                 .addSecurityItem(securityRequirement)
