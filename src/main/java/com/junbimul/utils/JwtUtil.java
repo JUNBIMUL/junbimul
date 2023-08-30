@@ -1,5 +1,6 @@
 package com.junbimul.utils;
 
+import com.junbimul.common.JwtProperties;
 import com.junbimul.domain.User;
 import com.junbimul.error.exception.UserApiException;
 import com.junbimul.error.model.UserErrorCode;
@@ -8,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -15,19 +17,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@EnableConfigurationProperties(JwtProperties.class)
 public class JwtUtil {
 
-    private final String SECRET_KEY = "abcdefghihklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 3;  // 3min
-    private final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 10; // 10min
+    private final JwtProperties jwtProperties;
     private final UserRepository userRepository;
 
     public final String generateAccessToken(String subject) {
-        return generateToken(subject, ACCESS_TOKEN_EXPIRATION_TIME);
+        return generateToken(subject, jwtProperties.getAccessTokenExpirationTime());
     }
 
     public String generateRefreshToken(String subject) {
-        return generateToken(subject, REFRESH_TOKEN_EXPIRATION_TIME);
+        return generateToken(subject, jwtProperties.getRefreshTokenExpirationTime());
     }
 
     private String generateToken(String loginId, long expirationTime) {
@@ -37,14 +38,14 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
+                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey().getBytes())
                 .compact();
     }
 
 
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
+                .setSigningKey(jwtProperties.getSecretKey().getBytes())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
