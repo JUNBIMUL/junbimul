@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserRequestDto {
-    private Long loginId;
-    private String nickname;
+public class BoardWriteRequestDto {
+    private String title;
+    private String content;
 }

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BoardModifyRequestDto {
     private Long boardId;
-    private Long userId;
     private String title;
     private String content;
 }

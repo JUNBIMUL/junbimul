@@ -1,5 +1,6 @@
 package com.junbimul;
 
+import com.junbimul.common.SHA256;
 import com.junbimul.domain.Board;
 import com.junbimul.domain.Comment;
 import com.junbimul.domain.User;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import java.security.NoSuchAlgorithmException;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class InitDB {
     private final InitService initService;
 
     @PostConstruct
-    private void init() {
+    private void init() throws NoSuchAlgorithmException {
         initService.DBInit();
     }
 
@@ -32,9 +34,18 @@ public class InitDB {
         // user 1, user 2
         // 게시글 1, 2
         // 댓글 1, 2
-        public void DBInit() {
-            User user1 = User.builder().nickname("나롱치").build();
-            User user2 = User.builder().nickname("침민구").build();
+        public void DBInit() throws NoSuchAlgorithmException {
+            User user1 = User.builder()
+                    .loginId("곤할영")
+                    .password(new SHA256().encrypt("곤할영"))
+                    .nickname("나롱치")
+                    .build();
+            User user2 = User.builder()
+                    .loginId("침민구")
+                    .password(new SHA256().encrypt("침민구"))
+                    .nickname("침키민구")
+                    .build();
+
 
             em.persist(user1);
             em.persist(user2);

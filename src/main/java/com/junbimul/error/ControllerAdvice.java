@@ -33,4 +33,11 @@ public class ControllerAdvice {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(new ErrorResponse(e.getErrorCode()));
     }
 
+    @ExceptionHandler(InterceptorException.class)
+    public ResponseEntity<ErrorResponse> interceptorException(InterceptorException e) {
+        log.error("InterceptorException", e);
+        ErrorResponse response = new ErrorResponse(e.getErrorCode());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(new ErrorResponse(e.getErrorCode()));
+    }
+
 }

@@ -19,6 +19,9 @@ public class User {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "login_id", length = 50)
+    private String loginId;
+
     @Column(name = "nickname", length = 30)
     private String nickname;
 
@@ -29,12 +32,21 @@ public class User {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    // 필요한가?
-//    @OneToMany(mappedBy = "user")
-//    private List<Board> boards = new ArrayList<>();
+    @Column(name = "password",
+            length = 255,
+            nullable = false)
+    private String password;
+
+    private String accessToken;
+    private String refreshToken;
 
     @Builder
     public User(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void settingToken(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 }
